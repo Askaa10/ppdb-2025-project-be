@@ -14,6 +14,11 @@ import { CloudinaryModule } from './app/cloudinary/cloudinary.module';
 import { DashboardModule } from './app/dashboard/dashboard.module';
 import { PendaftarModule } from './app/pendaftaran/pendaftaran.module';
 import { PendaftarController } from './app/pendaftaran/pendaftaran.controller';
+import { QuestionModule } from './app/question/question.module';
+import { AnswerModule } from './app/answer/answer.module';
+import { QuestionController } from './app/question/question.controller';
+import { AnswerController } from './app/answer/answer.controller';
+import { typeOrmConfig } from './config/typeorm.config';
 
 @Module({
   imports: [
@@ -34,8 +39,11 @@ import { PendaftarController } from './app/pendaftaran/pendaftaran.controller';
     CloudinaryModule,
     PendaftarModule,
     DashboardModule,
+    QuestionModule,
+    AnswerModule,
   ],
-  controllers: [AppController, UploadController,PendaftarController],
+  controllers: [AppController, UploadController,PendaftarController,QuestionController],
   providers: [AppService, JwtAccessTokenStrategy, JwtGuardRefreshToken],
+
 })
 export class AppModule {}

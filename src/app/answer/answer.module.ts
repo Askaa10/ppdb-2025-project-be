@@ -1,0 +1,15 @@
+// src/answer/answer.module.ts
+
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Answer } from './answer.entity';
+import { Question } from '../question/question.entity';
+import { AnswerService } from './answer.service';
+import { AnswerController } from './answer.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Answer, Question])],
+  controllers: [AnswerController],
+  providers: [AnswerService],
+})
+export class AnswerModule {}
