@@ -19,6 +19,7 @@ import { AnswerModule } from './app/answer/answer.module';
 import { QuestionController } from './app/question/question.controller';
 import { AnswerController } from './app/answer/answer.controller';
 import { typeOrmConfig } from './config/typeorm.config';
+import { CekKelulusanModule } from './app/kelulusan/kelulusan.module';
 
 @Module({
   imports: [
@@ -41,9 +42,10 @@ import { typeOrmConfig } from './config/typeorm.config';
     DashboardModule,
     QuestionModule,
     AnswerModule,
+    CekKelulusanModule,
   ],
-  controllers: [AppController, UploadController,PendaftarController,QuestionController],
-  providers: [AppService, JwtAccessTokenStrategy, JwtGuardRefreshToken],
+  controllers: [AppController, UploadController,PendaftarController,QuestionController  ],
+  providers: [AppService, JwtAccessTokenStrategy, JwtGuardRefreshToken, ],
 
 })
 export class AppModule {}

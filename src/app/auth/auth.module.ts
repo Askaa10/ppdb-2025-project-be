@@ -9,10 +9,12 @@ import { JwtGuardRefreshToken } from "./auth.guard";
 import { MailerModule } from "@nestjs-modules/mailer";
 import { ResetPassword } from "./reset_password.entity";
 import { JwtRefreshTokenStrategy } from "./jwtRefreshToken.strategy";
+import { PassportModule } from "@nestjs/passport";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, ResetPassword]),
   JwtModule.register({}),
+   PassportModule,
 ],
   controllers: [AuthController],
   providers: [AuthService,  JwtAccessTokenStrategy, JwtGuardRefreshToken,JwtRefreshTokenStrategy],

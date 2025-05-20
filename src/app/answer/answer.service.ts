@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Answer } from './answer.entity';
 import { Question } from '../question/question.entity';
+import { SubmitAnswerDto } from './answer.dto';
 
 @Injectable()
 export class AnswerService {
@@ -11,16 +12,21 @@ export class AnswerService {
     @InjectRepository(Question) private questionRepo: Repository<Question>,
   ) {}
 
-  async submitAnswer(questionId: number, selected: string) {
-    const question = await this.questionRepo.findOneBy({ id: questionId });
-    const isCorrect = question.answer === selected;
+async submitAnswer(dto: SubmitAnswerDto) {
+  const question = await this.questionRepo.findOneBy({ id: dto.questionId });
+  if (!question) throw new NotFoundException('Soal tidak ditemukan');
 
-    const answer = this.answerRepo.create({
-      text: selected,
-      question,
-      isCorrect,
-    });
+  const isCorrect = question.answer === dto.selected;
 
-    return this.answerRepo.save(answer);
-  }
+  const answer = this.answerRepo.create({
+    text: dto.selected,
+    question,
+    isCorrect,
+    nis: dto.nis,
+    nisn: dto.nisn,
+    nik: dto.nik,
+  });
+
+  return this.answerRepo.save(answer);
+}
 }
