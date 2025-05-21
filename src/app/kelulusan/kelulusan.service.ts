@@ -41,4 +41,12 @@ export class CekKelulusanService {
       nilai: `${jawabanBenar}/${totalSoal} (${Math.round(persen)}%)`,
     };
   }
+
+  async cekKelulusanById(id: string): Promise<{ nilai: number; statusKelulusan: string }> {
+    // Contoh logika, sesuaikan dengan kebutuhan Anda
+    // Misal: ambil nilai dari tabel Answer, lalu tentukan status kelulusan
+    const nilai = 80; // ambil nilai asli dari database
+    const statusKelulusan = nilai >= 70 ? 'Lulus' : 'Tidak Lulus';
+    return { nilai, statusKelulusan };
+  }
 }

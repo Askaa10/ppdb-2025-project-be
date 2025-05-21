@@ -15,13 +15,5 @@ export class Answer {
   @Column({ default: false })
   isCorrect: boolean;
 
-  @Column()
-  nis: string;
-
-  @Column()
-  nisn: string;
-
-  @Column()
-  nik: string;
 }
 

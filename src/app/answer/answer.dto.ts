@@ -8,15 +8,4 @@ export class SubmitAnswerDto {
   @IsNotEmpty()
   selected: string;
 
-  @IsString()
-  @IsNotEmpty()
-  nis: string;
-
-  @IsString()
-  @IsNotEmpty()
-  nisn: string;
-
-  @IsString()
-  @IsNotEmpty()
-  nik: string;
 }

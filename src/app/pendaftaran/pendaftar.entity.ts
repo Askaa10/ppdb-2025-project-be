@@ -1,5 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
-
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('pendaftaran')
 export class Pendaftar {
@@ -65,6 +64,12 @@ export class Pendaftar {
 
   @Column({ type: 'varchar', length: 9 })
   tahunAjaran: string;
+
+  @Column({ default: 'belum test' })
+  statusTest: 'sudah test' | 'belum test';
+
+  @Column({ type: 'int', nullable: true })
+  nilai: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

@@ -21,11 +21,12 @@ import { AnswerController } from './app/answer/answer.controller';
 import { typeOrmConfig } from './config/typeorm.config';
 import { CekKelulusanModule } from './app/kelulusan/kelulusan.module';
 
+
 @Module({
   imports: [
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'public'),
-    // }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     ConfigModule.forRoot({
       isGlobal: true, // konfigurasi is global untuk semua module
     }),

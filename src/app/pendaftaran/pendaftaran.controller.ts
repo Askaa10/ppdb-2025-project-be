@@ -18,8 +18,8 @@ export class PendaftarController {
     const pendaftarEntity = this.repo.create({
       id: id,
       ...data,
-
       jenisKelamin: data.jenisKelamin as 'Laki-laki' | 'Perempuan',
+      statusTest: 'belum test', // <-- default status
     });
     console.log('Data diterima:', data); // debug
     return await this.repo.save(pendaftarEntity);
@@ -44,4 +44,11 @@ export class PendaftarController {
   async remove(@Param('id') id: string) {
     return await this.repo.delete({ id });
   }
+  
+  @Post('submit-test/:id')
+  async submitTest(@Param('id') id: string) {
+    await this.repo.update({ id }, { statusTest: 'sudah test' });
+    return { message: 'Status test siswa sudah diupdate menjadi sudah test.' };
+  }
+
 }
