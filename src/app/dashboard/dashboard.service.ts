@@ -11,11 +11,19 @@ export class DashboardService {
   ) {}
 
   async getDashboard(): Promise<any> {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const dateString = `${yyyy}-${mm}-${dd}`; // format YYYY-MM-DD
+
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
     const [
       totalPendaftar,
       totalVerifikasi,
       totalBelumUpload,
-      totalWawancaraHariIni,
       totalJenisKelamin,
     ] = await Promise.all([
       // Total semua pendaftar
@@ -27,18 +35,6 @@ export class DashboardService {
       // Total pendaftar yang belum upload berkas
       this.pendaftarRepo.count({ where: { uploadBerkas: false } }),
 
-      // Total pendaftar yang wawancara hari ini
-      (async () => {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const dateString = `${yyyy}-${mm}-${dd}`;
-        return await this.pendaftarRepo.createQueryBuilder('pendaftar')
-          .where('DATE(pendaftar.tanggalWawancara) = :today', { today: dateString })
-          .getCount();
-      })(),
-
       // Statistik jenis kelamin
       this.pendaftarRepo.createQueryBuilder('pendaftar')
         .select('pendaftar.jenisKelamin', 'jenisKelamin')
@@ -46,6 +42,11 @@ export class DashboardService {
         .groupBy('pendaftar.jenisKelamin')
         .getRawMany(),
     ]);
+
+    const totalWawancaraHariIni = await this.pendaftarRepo.createQueryBuilder('pendaftar')
+      .where('pendaftar.sudahWawancara = :status', { status: true })
+      .andWhere('DATE(pendaftar.createdAt) = :today', { today: dateString })
+      .getCount();
 
     return {
       totalPendaftar,
@@ -55,5 +56,4 @@ export class DashboardService {
       totalJenisKelamin,
     };
   }
-  
 }

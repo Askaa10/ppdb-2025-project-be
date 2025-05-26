@@ -73,7 +73,4 @@ export class Pendaftar {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
-
-  @Column({ type: 'datetime', nullable: true })
-  tanggalWawancara: Date;
 }
