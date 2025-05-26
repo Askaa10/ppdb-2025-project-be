@@ -55,7 +55,11 @@ export class PendaftarController {
 
   @Get('list-siswa')
   async findAll() {
-    return await this.repo.find();
+    const pendaftars = await this.repo.find();
+    return pendaftars.map(pendaftar => ({
+      ...pendaftar,
+      statusKelulusan: pendaftar.statusKelulusan ?? 'Status belum ditentukan'
+    }));
   }
 
   @Get('detail-siswa/:id')
@@ -88,6 +92,7 @@ export class PendaftarController {
       'uploadBerkas',
       'tahunAjaran',
       'statusTest',
+      'statusKelulusan',
       'nilai',
     ];
 

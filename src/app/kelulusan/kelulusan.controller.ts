@@ -60,41 +60,45 @@ export class CekKelulusanController {
   }
 
   @Get('list-lulus')
-  async listKelulusan() {
-    const pendaftars = await this.pendaftarRepo.find(); // ✅ Fix disini
+async listKelulusan() {
+  const pendaftars = await this.pendaftarRepo.find({
+    where: { statusTest: 'sudah test' },
+  });
 
-    return pendaftars.map((pendaftar) => {
-      const nilai = pendaftar.nilai || 0;
+  const hasil = [];
 
-      if (nilai < 75) {
-        return {
-          ...pendaftar,
-          statusTest: 'sudah test',
-          statusKelulusan: 'Tidak Lulus',
-          message: 'Nilai di bawah 75, tidak lulus.',
-        };
-      }
+  for (const pendaftar of pendaftars) {
+    const nilai = pendaftar.nilai || 0;
+    let statusKelulusan: 'Lulus' | 'Tidak Lulus' | 'Ditunda' = 'Ditunda';
+    let message = '';
 
-      if (
-        !pendaftar.sudahVerifikasi ||
-        !pendaftar.sudahWawancara ||
-        !pendaftar.uploadBerkas
-      ) {
-        return {
-          ...pendaftar,
-          statusTest: 'sudah test',
-          statusKelulusan: 'Ditunda',
-          message:
-            'Kelulusan ditunda, lengkapi verifikasi, wawancara, dan upload berkas.',
-        };
-      }
+    if (nilai < 75) {
+      statusKelulusan = 'Tidak Lulus';
+      message = 'Nilai di bawah 75, tidak lulus.';
+    } else if (
+      !pendaftar.sudahVerifikasi ||
+      !pendaftar.sudahWawancara ||
+      !pendaftar.uploadBerkas
+    ) {
+      statusKelulusan = 'Ditunda';
+      message =
+        'Kelulusan ditunda, lengkapi verifikasi, wawancara, dan upload berkas.';
+    } else {
+      statusKelulusan = 'Lulus';
+      message = 'Selamat, Anda lulus!';
+    }
 
-      return {
-        ...pendaftar,
-        statusTest: 'sudah test',
-        statusKelulusan: 'Lulus',
-        message: 'Selamat, Anda lulus!',
-      };
+    // Simpan statusKelulusan ke DB
+    await this.pendaftarRepo.update(pendaftar.id, { statusKelulusan });
+
+    hasil.push({
+      ...pendaftar,
+      statusKelulusan,
+      message,
     });
   }
+
+  return hasil;
+}
+
 }
