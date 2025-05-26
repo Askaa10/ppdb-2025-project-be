@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 import { Pendaftar } from './pendaftar.entity';
 import { OmitType } from '@nestjs/mapped-types';
 import { Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-
 
 export class createDto {
   @IsString()
@@ -58,17 +57,18 @@ export class createDto {
   @IsOptional()
   tahunAjaran: string;
 
-  
-  @Column({ default: false })
+  @IsBoolean()
+  @IsOptional()
   sudahVerifikasi: boolean;
 
-  @Column({ default: false })
+  @IsBoolean()
+  @IsOptional()
   sudahWawancara: boolean;
 
-  @Column({ default: false })
+  @IsBoolean()
+  @IsOptional()
   uploadBerkas: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }
-
