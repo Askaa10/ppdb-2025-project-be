@@ -113,7 +113,7 @@ export class PendaftarController {
 
   @Post('submit-test/:id')
   async submitTest(@Param('id') id: string) {
-    await this.repo.update({ id }, { statusTest: 'sudah test' });
+    await this.repo.update({ id }, { statusTest: 'sudah test' } as Partial<Pendaftar>);
     return { message: 'Status test siswa sudah diupdate menjadi sudah test.' };
   }
 }

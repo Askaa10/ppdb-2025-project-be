@@ -27,7 +27,7 @@ export class AnswerController {
     // Simpan jawaban siswa di sini jika perlu
 
     // Update statusTest di tabel Pendaftar
-    await this.PendaftarRepository.update({ id }, { statusTest: 'sudah test' });
+    await this.PendaftarRepository.update({ id }, { statusTest: 'sudah test' } as Partial<Pendaftar>);
 
     return { message: 'Jawaban diterima dan status test sudah diupdate.' };
   }
@@ -42,7 +42,7 @@ async submitAllAnswers(
   // Simpan nilai dan statusTest ke pendaftar
   await this.PendaftarRepository.update(
     { id },
-    { nilai: result.nilai, statusTest: 'sudah test' }
+    { nilai: result.nilai, statusTest: 'sudah test' } as Partial<Pendaftar>
   );
 
   return {

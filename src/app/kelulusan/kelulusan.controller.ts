@@ -89,7 +89,7 @@ async listKelulusan() {
     }
 
     // Simpan statusKelulusan ke DB
-    await this.pendaftarRepo.update(pendaftar.id, { statusKelulusan });
+    await this.pendaftarRepo.update(pendaftar.id, { statusKelulusan } as Partial<Pendaftar>);
 
     hasil.push({
       ...pendaftar,

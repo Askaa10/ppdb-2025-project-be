@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { Answer } from '../answer/answer.entity';
 
 @Entity('pendaftaran')
 export class Pendaftar {
+  [x: string]: any;
   @PrimaryColumn('varchar', { length: 20 })
   id: string;
 
@@ -76,4 +78,7 @@ export class Pendaftar {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  @OneToMany(() => Answer, (answer) => answer.pendaftar)
+  answers: Answer[];
 }
