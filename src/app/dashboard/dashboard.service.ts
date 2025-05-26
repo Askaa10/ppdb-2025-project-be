@@ -11,14 +11,39 @@ export class DashboardService {
   ) {}
 
   async getDashboard(): Promise<any> {
-    const [totalPendaftar, totalVerifikasi, totalBelumUpload, totalWawancaraHariIni, totalJenisKelamin] = await Promise.all([
+    const [
+      totalPendaftar,
+      totalVerifikasi,
+      totalBelumUpload,
+      totalWawancaraHariIni,
+      totalJenisKelamin,
+    ] = await Promise.all([
+      // Total semua pendaftar
       this.pendaftarRepo.count(),
-      this.pendaftarRepo.count({ where: { sudahVerifikasi: false } }),
+
+      // Total pendaftar yang sudah verifikasi
+      this.pendaftarRepo.count({ where: { sudahVerifikasi: true } }),
+
+      // Total pendaftar yang belum upload berkas
       this.pendaftarRepo.count({ where: { uploadBerkas: false } }),
-      this.pendaftarRepo.count({ where: { sudahWawancara: false } }),
+
+      // Total pendaftar yang wawancara hari ini
+      (async () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const dateString = `${yyyy}-${mm}-${dd}`;
+        return await this.pendaftarRepo.createQueryBuilder('pendaftar')
+          .where('DATE(pendaftar.tanggalWawancara) = :today', { today: dateString })
+          .getCount();
+      })(),
+
+      // Statistik jenis kelamin
       this.pendaftarRepo.createQueryBuilder('pendaftar')
-        .select('COUNT(*) AS total, jenisKelamin')
-        .groupBy('jenisKelamin')
+        .select('pendaftar.jenisKelamin', 'jenisKelamin')
+        .addSelect('COUNT(*)', 'total')
+        .groupBy('pendaftar.jenisKelamin')
         .getRawMany(),
     ]);
 
