@@ -1,14 +1,25 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Delete,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pendaftar } from './pendaftar.entity';
 import { createDto } from './pendaftaran.dto';
+import { PendaftaranService } from './pendaftaran.service';
 
 @Controller('pendaftar')
 export class PendaftarController {
   constructor(
     @InjectRepository(Pendaftar)
     private readonly repo: Repository<Pendaftar>,
+    private readonly pendaftaranService: PendaftaranService,
   ) {}
 
   @Post('daftar-siswa')
@@ -19,11 +30,29 @@ export class PendaftarController {
       id: id,
       ...data,
       jenisKelamin: data.jenisKelamin as 'Laki-laki' | 'Perempuan',
-      statusTest: 'belum test', // <-- default status
+      statusTest: 'belum test',
     });
-    console.log('Data diterima:', data); // debug
+
     return await this.repo.save(pendaftarEntity);
   }
+
+  @Post('cek-siswa')
+async cekSiswa(@Body() body: any) {
+  const { nis, nisn, nik } = body;
+
+  if (!nis || !nisn || !nik) {
+    throw new BadRequestException('NIS, NISN, dan NIK harus diisi');
+  }
+
+  const siswa = await this.pendaftaranService.CekNisNisnNik(nis, nisn, nik);
+
+  if (!siswa) {
+    throw new NotFoundException('Siswa tidak ditemukan');
+  }
+
+  return { success: true, message: 'Siswa valid', siswa };
+}
+
 
   @Get('list-siswa')
   async findAll() {
@@ -31,7 +60,7 @@ export class PendaftarController {
   }
 
   @Get('detail-siswa/:id')
-  async findOne(@Body('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return await this.repo.findOne({ where: { id } });
   }
 
@@ -44,11 +73,10 @@ export class PendaftarController {
   async remove(@Param('id') id: string) {
     return await this.repo.delete({ id });
   }
-  
+
   @Post('submit-test/:id')
   async submitTest(@Param('id') id: string) {
     await this.repo.update({ id }, { statusTest: 'sudah test' });
     return { message: 'Status test siswa sudah diupdate menjadi sudah test.' };
   }
-
 }
