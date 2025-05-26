@@ -37,22 +37,21 @@ export class PendaftarController {
   }
 
   @Post('cek-siswa')
-async cekSiswa(@Body() body: any) {
-  const { nis, nisn, nik } = body;
+  async cekSiswa(@Body() body: any) {
+    const { nis, nisn, nik } = body;
 
-  if (!nis || !nisn || !nik) {
-    throw new BadRequestException('NIS, NISN, dan NIK harus diisi');
+    if (!nis || !nisn || !nik) {
+      throw new BadRequestException('NIS, NISN, dan NIK harus diisi');
+    }
+
+    const siswa = await this.pendaftaranService.CekNisNisnNik(nis, nisn, nik);
+
+    if (!siswa) {
+      throw new NotFoundException('Siswa tidak ditemukan');
+    }
+
+    return { success: true, message: 'Siswa valid', siswa };
   }
-
-  const siswa = await this.pendaftaranService.CekNisNisnNik(nis, nisn, nik);
-
-  if (!siswa) {
-    throw new NotFoundException('Siswa tidak ditemukan');
-  }
-
-  return { success: true, message: 'Siswa valid', siswa };
-}
-
 
   @Get('list-siswa')
   async findAll() {
@@ -66,7 +65,40 @@ async cekSiswa(@Body() body: any) {
 
   @Post('update-siswa/:id')
   async update(@Param('id') id: string, @Body() data: Partial<Pendaftar>) {
-    return await this.repo.update({ id }, data);
+    // Daftar field yang valid sesuai entity
+    const allowedFields: (keyof Pendaftar)[] = [
+      'nama',
+      'nis',
+      'nisn',
+      'nik',
+      'tempatLahir',
+      'tanggalLahir',
+      'jenisKelamin',
+      'asalSekolah',
+      'noTelpSiswa',
+      'alamatSiswa',
+      'namaAyah',
+      'namaIbu',
+      'pekerjaanAyah',
+      'pekerjaanIbu',
+      'noTelpOrtu',
+      'alamatOrtu',
+      'sudahVerifikasi',
+      'sudahWawancara',
+      'uploadBerkas',
+      'tahunAjaran',
+      'statusTest',
+      'nilai',
+    ];
+
+    // Filter hanya field yang valid
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([key]) =>
+        allowedFields.includes(key as keyof Pendaftar),
+      ),
+    );
+
+    return await this.repo.update({ id }, filteredData);
   }
 
   @Delete('delete-siswa/:id')

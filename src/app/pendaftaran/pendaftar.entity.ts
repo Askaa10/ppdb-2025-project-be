@@ -68,6 +68,9 @@ export class Pendaftar {
   @Column({ default: 'belum test' })
   statusTest: 'sudah test' | 'belum test';
 
+  @Column({ type: 'varchar', nullable: true })
+  statusKelulusan: 'Lulus' | 'Tidak Lulus' | 'Ditunda';
+
   @Column({ type: 'int', nullable: true })
   nilai: number;
 
