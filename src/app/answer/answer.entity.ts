@@ -13,11 +13,11 @@ export class Answer {
   @ManyToOne(() => Question, (question) => question.answer)
   question: Question;
 
-  @ManyToOne(() => Pendaftar, (pendaftar) => pendaftar.answers)
+  @ManyToOne(() => Pendaftar, (pendaftar) => pendaftar.answers, {
+    onDelete: 'CASCADE', // ⬅️ ini penting
+  })
   pendaftar: Pendaftar;
 
   @Column({ default: false })
   isCorrect: boolean;
-
 }
-

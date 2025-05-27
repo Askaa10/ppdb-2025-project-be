@@ -15,33 +15,55 @@ export class DashboardService {
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    const dateString = `${yyyy}-${mm}-${dd}`; // format YYYY-MM-DD
-
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const dateString = `${yyyy}-${mm}-${dd}`;
 
     const [
       totalPendaftar,
       totalVerifikasi,
       totalBelumUpload,
       totalJenisKelamin,
+      rawKelulusan,
     ] = await Promise.all([
-      // Total semua pendaftar
       this.pendaftarRepo.count(),
-
-      // Total pendaftar yang sudah verifikasi
       this.pendaftarRepo.count({ where: { sudahVerifikasi: true } }),
-
-      // Total pendaftar yang belum upload berkas
       this.pendaftarRepo.count({ where: { uploadBerkas: false } }),
-
-      // Statistik jenis kelamin
       this.pendaftarRepo.createQueryBuilder('pendaftar')
         .select('pendaftar.jenisKelamin', 'jenisKelamin')
         .addSelect('COUNT(*)', 'total')
         .groupBy('pendaftar.jenisKelamin')
         .getRawMany(),
+      this.pendaftarRepo.createQueryBuilder('pendaftar')
+        .select('pendaftar.statusKelulusan', 'statusKelulusan')
+        .addSelect('COUNT(*)', 'total')
+        .groupBy('pendaftar.statusKelulusan')
+        .getRawMany(),
     ]);
+
+    const totalKelulusan = {
+      lulus: 0,
+      tidakLulus: 0,
+      ditunda: 0,
+    };
+
+    for (const row of rawKelulusan) {
+      const status = row.statusKelulusan?.toLowerCase(); // normalize lowercase
+      const count = Number(row.total);
+
+      switch (status) {
+        case 'lulus':
+          totalKelulusan.lulus = count;
+          break;
+        case 'tidak lulus':
+          totalKelulusan.tidakLulus = count;
+          break;
+        case 'ditunda':
+        case null:
+        case undefined:
+        default:
+          totalKelulusan.ditunda += count;
+          break;
+      }
+    }
 
     const totalWawancaraHariIni = await this.pendaftarRepo.createQueryBuilder('pendaftar')
       .where('pendaftar.sudahWawancara = :status', { status: true })
@@ -54,6 +76,9 @@ export class DashboardService {
       totalBelumUpload,
       totalWawancaraHariIni,
       totalJenisKelamin,
+      statusKelulusan: totalKelulusan,
     };
   }
+
+  
 }

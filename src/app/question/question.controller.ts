@@ -25,7 +25,7 @@ export class QuestionController {
     return this.questionService.findOne(id);
   }
 
-  @Patch(':id')
+  @Post(':id')
   update(@Param('id') id: number, @Body() data: Partial<Question>) {
     return this.questionService.update(id, data);
   }
