@@ -37,28 +37,24 @@ export class PendaftarController {
   }
 
   @Post('cek-siswa')
-  async cekSiswa(@Body() body: any) {
-    const { nis, nisn, nik } = body;
-
-    if (!nis || !nisn || !nik) {
-      throw new BadRequestException('NIS, NISN, dan NIK harus diisi');
-    }
-
-    const siswa = await this.pendaftaranService.CekNisNisnNik(nis, nisn, nik);
-
-    if (!siswa) {
-      throw new NotFoundException('Siswa tidak ditemukan');
-    }
-
-    return { success: true, message: 'Siswa valid', siswa };
+  async cekIdSiswa(@Body() body: { id: string }) {
+    const { id } = body;
+    if (!id) throw new BadRequestException('ID siswa harus diisi');
+    const siswa = await this.repo.findOne({ where: { id } });
+    if (!siswa) throw new NotFoundException('Siswa tidak ditemukan');
+    return {
+      success: true,
+      message: 'Siswa valid',
+      siswa: { id: siswa.id, nama: siswa.nama },
+    };
   }
 
   @Get('list-siswa')
   async findAll() {
     const pendaftars = await this.repo.find();
-    return pendaftars.map(pendaftar => ({
+    return pendaftars.map((pendaftar) => ({
       ...pendaftar,
-      statusKelulusan: pendaftar.statusKelulusan ?? 'Status belum ditentukan'
+      statusKelulusan: pendaftar.statusKelulusan ?? 'Status belum ditentukan',
     }));
   }
 
@@ -113,7 +109,9 @@ export class PendaftarController {
 
   @Post('submit-test/:id')
   async submitTest(@Param('id') id: string) {
-    await this.repo.update({ id }, { statusTest: 'sudah test' } as Partial<Pendaftar>);
+    await this.repo.update({ id }, {
+      statusTest: 'sudah test',
+    } as Partial<Pendaftar>);
     return { message: 'Status test siswa sudah diupdate menjadi sudah test.' };
   }
 }
