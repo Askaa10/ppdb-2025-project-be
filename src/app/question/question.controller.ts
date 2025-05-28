@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Question } from './question.entity';
@@ -22,16 +30,23 @@ export class QuestionController {
 
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.questionService.findOne(id);
+    return this.questionService.findOne(Number(id));
   }
 
-  @Post(':id')
+  @Patch(':id') // GANTI dari @Post ke @Patch
   update(@Param('id') id: number, @Body() data: Partial<Question>) {
-    return this.questionService.update(id, data);
+    return this.questionService.update(Number(id), data);
   }
 
   @Delete(':id')
   remove(@Param('id') id: number) {
-    return this.questionService.remove(id);
+    return this.questionService.remove(Number(id));
   }
+
+  // mapel
+  @Get('mapel/:mapel')
+findByMapel(@Param('mapel') mapel: string) {
+  return this.questionService.findByMapel(mapel);
+}
+
 }

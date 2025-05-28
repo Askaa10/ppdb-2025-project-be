@@ -25,15 +25,18 @@ export class PendaftarController {
   @Post('daftar-siswa')
   async create(@Body() data: createDto) {
     const id = `PPDBMQ${Date.now().toString().slice(-8)}`;
-
     const pendaftarEntity = this.repo.create({
-      id: id,
+      id,
       ...data,
       jenisKelamin: data.jenisKelamin as 'Laki-laki' | 'Perempuan',
       statusTest: 'belum test',
     });
-
-    return await this.repo.save(pendaftarEntity);
+    const saved = await this.repo.save(pendaftarEntity);
+    return {
+      success: true,
+      message: 'Pendaftaran berhasil',
+      data: saved,
+    };
   }
 
   @Post('cek-siswa')
@@ -60,12 +63,24 @@ export class PendaftarController {
 
   @Get('detail-siswa/:id')
   async findOne(@Param('id') id: string) {
-    return await this.repo.findOne({ where: { id } });
+    const siswa = await this.repo.findOne({ where: { id } });
+    if (!siswa) {
+      throw new NotFoundException({
+        success: false,
+        message: `Siswa dengan ID ${id} tidak ditemukan`,
+        
+      });
+      
+    }
+    return {
+      success: true,
+      message: 'Data siswa ditemukan',
+      data: siswa,
+    };
   }
 
   @Post('update-siswa/:id')
   async update(@Param('id') id: string, @Body() data: Partial<Pendaftar>) {
-    // Daftar field yang valid sesuai entity
     const allowedFields: (keyof Pendaftar)[] = [
       'nama',
       'nis',
@@ -92,19 +107,26 @@ export class PendaftarController {
       'nilai',
     ];
 
-    // Filter hanya field yang valid
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([key]) =>
         allowedFields.includes(key as keyof Pendaftar),
       ),
     );
 
-    return await this.repo.update({ id }, filteredData);
+    await this.repo.update({ id }, filteredData);
+    return {
+      success: true,
+      message: 'Data siswa berhasil diperbarui',
+    };
   }
 
   @Delete('delete-siswa/:id')
   async remove(@Param('id') id: string) {
-    return await this.repo.delete({ id });
+    await this.repo.delete({ id });
+    return {
+      success: true,
+      message: 'Data siswa berhasil dihapus',
+    };
   }
 
   @Post('submit-test/:id')
