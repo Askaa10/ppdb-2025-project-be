@@ -13,4 +13,11 @@ export class DashboardController {
     return this.dashboardService.getDashboard();
   }
 
+ @Get('daftar-siswa')
+  async getDaftarSiswa() {
+    return this.dashboardService.getDaftarSiswa();
+  }
+
+
 }
+ 

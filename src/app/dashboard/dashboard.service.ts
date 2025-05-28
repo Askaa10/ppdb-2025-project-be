@@ -80,5 +80,25 @@ export class DashboardService {
     };
   }
 
-  
-}
+  async getDaftarSiswa(): Promise<any> {
+    const [data, total] = await this.pendaftarRepo.findAndCount({
+      select: [
+        'id',
+        'nama',
+        'statusKelulusan',
+        'jenisKelamin',
+        'sudahWawancara',
+        'sudahVerifikasi',
+        'uploadBerkas',
+        'nilai'
+      ],
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      data,
+      total,
+    };
+  }
+  }
+

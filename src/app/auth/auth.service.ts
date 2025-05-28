@@ -1,5 +1,6 @@
 import { IsEmail } from 'class-validator';
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -209,7 +210,8 @@ export class AuthService extends BaseResponse {
     token: string,
     payload: ResetPasswordDto,
   ): Promise<ResponseSuccess> {
-    const userToken = await this.resetPasswordRepository.findOne({    //cek apakah user_id dan token yang sah pada tabel reset password
+    const userToken = await this.resetPasswordRepository.findOne({
+      //cek apakah user_id dan token yang sah pada tabel reset password
       where: {
         user: {
           id: user_id,
@@ -219,17 +221,16 @@ export class AuthService extends BaseResponse {
     });
 
     if (!user_id || !token) {
-      throw new HttpException(
-        'Parameter tidak valid',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Parameter tidak valid', HttpStatus.BAD_REQUEST);
     }
     payload.new_password = await hash(payload.new_password, 12); //hash password
-    await this.authRepository.save({  // ubah password lama dengan password baru
+    await this.authRepository.save({
+      // ubah password lama dengan password baru
       id: user_id,
       password: payload.new_password,
     });
-    await this.resetPasswordRepository.delete({ // hapus semua token pada tabel reset password yang mempunyai user_id yang dikirim, agar tidak bisa digunakan kembali
+    await this.resetPasswordRepository.delete({
+      // hapus semua token pada tabel reset password yang mempunyai user_id yang dikirim, agar tidak bisa digunakan kembali
       user: {
         id: user_id,
       },
@@ -312,8 +313,54 @@ export class AuthService extends BaseResponse {
         id: id,
       },
     });
- 
+
     return this._success('OK', user);
   }
- 
+
+ async updateProfile(id: number, payload: any): Promise<ResponseSuccess> {
+  if (!payload || Object.keys(payload).length === 0) {
+    throw new BadRequestException('Data update tidak boleh kosong');
+  }
+
+  // Jika user mengubah email, pastikan email baru belum dipakai
+  if (payload.email) {
+    const existingUser = await this.authRepository.findOne({
+      where: { email: payload.email },
+    });
+
+    if (existingUser && existingUser.id !== id) {
+      throw new HttpException(
+        'Email sudah digunakan oleh pengguna lain',
+        HttpStatus.CONFLICT,
+      );
+    }
+  }
+
+  // Update user
+  await this.authRepository.update(id, payload);
+
+  // Ambil data terbaru
+  const updatedUser = await this.authRepository.findOne({ where: { id } });
+  if (!updatedUser) {
+    throw new NotFoundException('User tidak ditemukan setelah update');
+  }
+
+  // Buat token baru
+  const jwtPayload: jwtPayload = {
+    id: updatedUser.id,
+    nama: updatedUser.nama,
+    email: updatedUser.email,
+  };
+  const access_token = await this.generateJWT(
+    jwtPayload,
+    '1d',
+    process.env.ACCESS_TOKEN_SECRET,
+  );
+
+  return this._success('Profile updated successfully', {
+    ...updatedUser,
+    access_token,
+  });
+}
+
 }

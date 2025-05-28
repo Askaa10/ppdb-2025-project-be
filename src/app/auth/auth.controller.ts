@@ -3,14 +3,20 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Put,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto, ResetPasswordDto } from './auth.dto';
+import { LoginDto, RegisterDto, ResetPasswordDto, UpdateUserDto } from './auth.dto';
 import { JwtGuard, JwtGuardRefreshToken } from './auth.guard';
+import { promises } from 'dns';
+import { ResponseSuccess } from 'src/interface/response.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
@@ -54,10 +60,26 @@ export class AuthController {
   async socialLogin(@Body() payload: any) {
     return this.authService.socialLogin(payload);
   }
-  @UseGuards(JwtGuard) 
+  @UseGuards(JwtGuard)
   @Get('profile')
   async profile(@Req() req) {
     const { id } = req.user;
     return this.authService.myProfile(id);
+  }
+
+  @Put('me')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(FileInterceptor('avatar')) // nama harus sama dengan FormData
+  updateProfile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: UpdateUserDto,
+    @Req() req: any,
+  ) {
+    const data: any = { ...body };
+    if (file) {
+      data.avatar = file.filename; // atau path, tergantung penyimpananmu
+    }
+
+    return this.authService.updateProfile(req.user.id, data);
   }
 }

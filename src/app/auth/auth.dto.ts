@@ -31,6 +31,8 @@ export class ResetPasswordDto {
   new_password: string;
 }
 export class LoginDto extends PickType(UserDto, ['email', 'password']) {}
+
+export class UpdateUserDto extends PartialType(UserDto) {}
 export class RegisterDto extends PickType(UserDto, [
   'nama',
   'email',
