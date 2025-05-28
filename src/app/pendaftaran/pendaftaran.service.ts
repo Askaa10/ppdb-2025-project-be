@@ -10,13 +10,4 @@ export class PendaftaranService {
     private readonly pendaftarRepository: Repository<Pendaftar>,
   ) {}
 
-  async CekNisNisnNik(nis: string, nisn: string, nik: string): Promise<Pendaftar | null> {
-  return await this.pendaftarRepository.findOne({
-    where: {
-      nis,
-      nisn,
-      nik,
-    },
-  });
-}
 }
