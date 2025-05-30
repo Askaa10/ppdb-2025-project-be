@@ -27,12 +27,13 @@ export class QuestionService {
   }
 
   async update(id: number, data: Partial<Question>) {
-    await this.repo.update(id, data);
-    const updated = await this.findOne(id);
-    return {
-      message: 'Soal berhasil diperbarui',
-      data: updated,
-    };
+    const question = await this.repo.findOne({ where: { id } });
+    if (!question) {
+      throw new Error('Question not found');
+    }
+    Object.assign(question, data);
+    await this.repo.save(question);
+    return { message: 'Question updated', question };
   }
 
   remove(id: number) {

@@ -28,17 +28,13 @@ export class QuestionController {
     return this.questionService.findAll();
   }
 
-  @Get(':id')
+  @Get('/list/:id')
   findOne(@Param('id') id: number) {
     return this.questionService.findOne(Number(id));
   }
 
-  @Patch(':id') // GANTI dari @Post ke @Patch
-  update(@Param('id') id: number, @Body() data: Partial<Question>) {
-    return this.questionService.update(Number(id), data);
-  }
 
-  @Delete(':id')
+  @Delete('/delete/:id')
   remove(@Param('id') id: number) {
     return this.questionService.remove(Number(id));
   }
@@ -49,4 +45,8 @@ findByMapel(@Param('mapel') mapel: string) {
   return this.questionService.findByMapel(mapel);
 }
 
+  @Patch('/update/:id')
+  async updateQuestion(@Param('id') id: number, @Body() data: Partial<Question>) {
+    return this.questionService.update(Number(id), data);
+  }
 }
