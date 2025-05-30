@@ -16,12 +16,13 @@ import { UploadController } from './app/upload/upload.controller';
 import { AppService } from './app.service';
 import { JwtAccessTokenStrategy } from './app/auth/jwtAccessToken.Strategy';
 import { JwtGuardRefreshToken } from './app/auth/auth.guard';
+import { PendaftarController } from './app/pendaftaran/pendaftaran.controller';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
@@ -38,7 +39,7 @@ import { JwtGuardRefreshToken } from './app/auth/auth.guard';
     AnswerModule,
     CekKelulusanModule,
   ],
-  controllers: [AppController, UploadController],
+  controllers: [AppController, UploadController, ],
   providers: [AppService, JwtAccessTokenStrategy, JwtGuardRefreshToken],
 })
 export class AppModule {}

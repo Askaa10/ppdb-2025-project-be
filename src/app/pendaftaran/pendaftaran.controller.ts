@@ -36,6 +36,7 @@ export class PendaftarController {
       success: true,
       message: 'Pendaftaran berhasil',
       data: saved,
+      idSiswa: saved.id,
     };
   }
 
